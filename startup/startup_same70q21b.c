@@ -35,6 +35,10 @@ extern uint32_t _efixed;
 extern uint32_t _etext;
 extern uint32_t _srelocate;
 extern uint32_t _erelocate;
+extern uint32_t _relocate_lma;
+extern uint32_t _sitcm;
+extern uint32_t _eitcm;
+extern uint32_t _itcm_lma;
 extern uint32_t _szero;
 extern uint32_t _ezero;
 extern uint32_t _sstack;
@@ -243,7 +247,7 @@ void Reset_Handler(void)
 	uint32_t *pSrc, *pDest;
 
 	/* Initialize the relocate segment */
-	pSrc  = &_etext;
+	pSrc  = &_relocate_lma;
 	pDest = &_srelocate;
 
 	if (pSrc != pDest) {
@@ -260,6 +264,19 @@ void Reset_Handler(void)
 	/* Set the vector table base address */
 	pSrc      = (uint32_t *)&_sfixed;
 	SCB->VTOR = ((uint32_t)pSrc & SCB_VTOR_TBLOFF_Msk);
+
+	/* Enable ITCM */
+	SCB->ITCMCR |= 1U << SCB_ITCMCR_EN_Pos;
+
+	/* Initialize the itcm segment */
+	pSrc  = &_itcm_lma;
+	pDest = &_sitcm;
+
+	if (pSrc != pDest) {
+		for (; pDest < &_eitcm;) {
+			*pDest++ = *pSrc++;
+		}
+	}
 
 	/* Initialize the C library */
 	__libc_init_array();
@@ -278,5 +295,6 @@ void Reset_Handler(void)
 void Dummy_Handler(void)
 {
 	while (1) {
+		__BKPT();
 	}
 }

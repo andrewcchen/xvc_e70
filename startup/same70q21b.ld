@@ -39,7 +39,9 @@ SEARCH_DIR(.)
 MEMORY
 {
     rom (rx)    : ORIGIN = 0x00400000, LENGTH = 0x00200000 /* rom, 2097152K */
-    ram (rwx)   : ORIGIN = 0x20400000, LENGTH = 0x00060000 /* ram, 393216K */
+    ram (rwx)   : ORIGIN = 0x20400000, LENGTH = 0x00040000 /* ram, 256K */
+    itcm (rwx)  : ORIGIN = 0x00000000, LENGTH = 0x00010000 /* itcm, 64K */
+    dtcm (rwx)  : ORIGIN = 0x20000000, LENGTH = 0x00010000 /* dtcm, 64K */
 }
 
 /* The stack size used by the application. NOTE: you need to adjust according to your application. */
@@ -111,7 +113,7 @@ SECTIONS
     . = ALIGN(4);
     _etext = .;
 
-    .relocate : AT (_etext)
+    .relocate :
     {
         . = ALIGN(4);
         _srelocate = .;
@@ -119,7 +121,20 @@ SECTIONS
         *(.data .data.*);
         . = ALIGN(4);
         _erelocate = .;
-    } > ram
+    } > ram AT > rom
+
+    _relocate_lma = LOADADDR(.relocate);
+    
+    .itcm :
+    {
+        . = ALIGN(4);
+        _sitcm = .;
+        *(.itcm .itcm.*)
+        . = ALIGN(4);
+        _eitcm = .;
+    } > itcm AT > rom
+
+	_itcm_lma = LOADADDR(.itcm);
 
     /* .bss section which is used for uninitialized data */
     .bss (NOLOAD) :
@@ -144,6 +159,10 @@ SECTIONS
         _eheap = .;
     } > ram
 
+    . = ALIGN(4);
+    _end = . ;
+    _ram_end_ = ORIGIN(ram) + LENGTH(ram) - 1 ;
+
     /* stack section */
     .stack (NOLOAD):
     {
@@ -152,9 +171,14 @@ SECTIONS
         . = . + STACK_SIZE;
         . = ALIGN(8);
         _estack = .;
-    } > ram
+    } > dtcm
 
-    . = ALIGN(4);
-    _end = . ;
-    _ram_end_ = ORIGIN(ram) + LENGTH(ram) - 1 ;
+    .dtcm (NOLOAD) :
+    {
+        . = ALIGN(8);
+        _sdtcm = .;
+        *(.dtcm .dtcm.*)
+        . = ALIGN(8);
+        _edtcm = .;
+    } > dtcm
 }
