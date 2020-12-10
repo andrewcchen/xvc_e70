@@ -35,9 +35,6 @@ extern uint32_t _efixed;
 extern uint32_t _etext;
 extern uint32_t _srelocate;
 extern uint32_t _erelocate;
-extern uint32_t _edata;
-extern uint32_t _sitcm;
-extern uint32_t _eitcm;
 extern uint32_t _szero;
 extern uint32_t _ezero;
 extern uint32_t _sstack;
@@ -251,16 +248,6 @@ void Reset_Handler(void)
 
 	if (pSrc != pDest) {
 		for (; pDest < &_erelocate;) {
-			*pDest++ = *pSrc++;
-		}
-	}
-
-	/* Initialize the itcm segment */
-	pSrc  = &_edata;
-	pDest = &_sitcm;
-
-	if (pSrc != pDest) {
-		for (; pDest < &_eitcm;) {
 			*pDest++ = *pSrc++;
 		}
 	}

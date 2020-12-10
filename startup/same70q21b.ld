@@ -38,17 +38,15 @@ SEARCH_DIR(.)
 /* Memory Spaces Definitions */
 MEMORY
 {
-    rom (rx)    : ORIGIN = 0x00400000, LENGTH = 0x00200000 /* rom, 2048K */
-    ram (rwx)   : ORIGIN = 0x20400000, LENGTH = 0x00040000 /* ram, 256K */
-    itcm (rwx)  : ORIGIN = 0x00000000, LENGTH = 0x00010000 /* itcm, 64K */
-    dtcm (rwx)  : ORIGIN = 0x20000000, LENGTH = 0x00010000 /* dtcm, 64K */
+    rom (rx)    : ORIGIN = 0x00400000, LENGTH = 0x00200000 /* rom, 2097152K */
+    ram (rwx)   : ORIGIN = 0x20400000, LENGTH = 0x00060000 /* ram, 393216K */
 }
 
 /* The stack size used by the application. NOTE: you need to adjust according to your application. */
 STACK_SIZE = DEFINED(STACK_SIZE) ? STACK_SIZE : DEFINED(__stack_size__) ? __stack_size__ : 0x0400;
 
 /* The heapsize used by the application. NOTE: you need to adjust according to your application. */
-HEAP_SIZE = DEFINED(HEAP_SIZE) ? HEAP_SIZE : DEFINED(__heap_size__) ? __heap_size__ : 0x0000;
+HEAP_SIZE = DEFINED(HEAP_SIZE) ? HEAP_SIZE : DEFINED(__heap_size__) ? __heap_size__ : 0x0200;
 
 /* Section Definitions */
 SECTIONS
@@ -123,18 +121,6 @@ SECTIONS
         _erelocate = .;
     } > ram
 
-    . = ALIGN(4);
-    _edata = .;
-    
-    .itcm : AT (_edata)
-    {
-        . = 0;
-        _sitcm = .;
-        . = ALIGN(8);
-        *(.itcm .itcm.*)
-        _eitcm = .;
-    } > itcm
-
     /* .bss section which is used for uninitialized data */
     .bss (NOLOAD) :
     {
@@ -148,35 +134,27 @@ SECTIONS
         _ezero = .;
     } > ram
 
-    . = ALIGN(4);
-    _end = . ;
-    _ram_end_ = ORIGIN(ram) + LENGTH(ram) - 1 ;
-
     /* heap section */
-    .heap (NOLOAD) :
+    .heap (NOLOAD):
     {
         . = ALIGN(8);
          _sheap = .;
         . = . + HEAP_SIZE;
         . = ALIGN(8);
         _eheap = .;
-    } > dtcm
+    } > ram
 
     /* stack section */
-    .stack (NOLOAD) :
+    .stack (NOLOAD):
     {
         . = ALIGN(8);
         _sstack = .;
         . = . + STACK_SIZE;
         . = ALIGN(8);
         _estack = .;
-    } > dtcm
-    
-    .dtcm (NOLOAD) :
-    {
-        . = ALIGN(8);
-        _sdtcm = .;
-        *(.dtcm .dtcm.*)
-        _edtcm = .;
-    } > dtcm
+    } > ram
+
+    . = ALIGN(4);
+    _end = . ;
+    _ram_end_ = ORIGIN(ram) + LENGTH(ram) - 1 ;
 }
