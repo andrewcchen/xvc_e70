@@ -129,7 +129,7 @@ static void usb_write(uint8_t *src, int len) {
 	cdcdf_acm_write(src, len);
 }
 
-static void xvc(void) {
+static void xvc_serve(void) {
 	static char xvcInfo[] = "xvcServer_v1.0:250\n";
 
 	static uint8_t cmd[16];
@@ -160,10 +160,8 @@ static void xvc(void) {
 		usb_read(cmd, 4);
 		usb_read((uint8_t *)&num_bits, 4);
 
-		if (num_bits > JTAG_MAX_BITS) {
-			gpio_set_pin_level(LED, 0);
-			while (1) __BKPT();
-		}
+		if (num_bits > JTAG_MAX_BITS)
+			panic();
 
 		int num_bytes = (num_bits + 7) / 8;
 
@@ -190,8 +188,6 @@ int main(void) {
 	cdcdf_acm_register_callback(CDCDF_ACM_CB_STATE_C, (FUNC_PTR)usb_device_cb_state_c);
 
 	while (true) {
-		xvc();
+		xvc_serve();
 	}
-
-	return 0;
 }

@@ -46,6 +46,7 @@ extern "C" {
 #define ASSERT(__e) ((__e) ? (void)0 : assert_failed(__FILE__, __LINE__))
 #endif
 
+void panic(void);
 void assert_failed(const char *const file, const int line);
 
 #ifdef __cplusplus
