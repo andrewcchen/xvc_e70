@@ -130,25 +130,22 @@ static void usb_write(uint8_t *src, int len) {
 }
 
 static void xvc_serve(void) {
-	static char xvcInfo[] = "xvcServer_v1.0:250\n";
-
 	static uint8_t cmd[16];
 
-	static uint8_t tms_bytes[256];
-	static uint8_t tdi_bytes[256];
-	static uint8_t tdo_bytes[256];
+	static uint8_t tms_bytes[JTAG_MAX_BYTES];
+	static uint8_t tdi_bytes[JTAG_MAX_BYTES];
+	static uint8_t tdo_bytes[JTAG_MAX_BYTES];
 
 	usb_read(cmd, 2);
 
 	if (memcmp(cmd, "ge", 2) == 0) {
 		usb_read(cmd, 6);
-		usb_write((uint8_t *)xvcInfo, strlen(xvcInfo));
+		usb_write((uint8_t *)XVC_INFO, strlen(XVC_INFO));
 		return;
 	}
 
 	if (memcmp(cmd, "se", 2) == 0) {
 		usb_read(cmd, 9);
-		//usb_write(cmd + 5, 4);
 		uint32_t period = 100;
 		usb_write((uint8_t *)&period, 4);
 		return;

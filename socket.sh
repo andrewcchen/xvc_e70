@@ -1,7 +1,13 @@
 #!/bin/bash
 
-tty=${2:-/dev/ttyACM1}
+tty=${1:-/dev/ttyACM0}
 
-set-tty-raw $tty
-nc -l 2542 <$tty >$tty
-#tee xxx.in <$tty | nc -l 2542 | tee xxx.out >$tty
+if [ ! -e $tty ]; then
+	echo >&2 $tty does not exist
+	exit 1
+fi
+
+while [ -e $tty ]; do
+	stty -F $tty raw -echo -echoe -echok -echoctl -echoke
+	nc -l -s 127.0.0.1 -p 2542 <$tty >$tty
+done;

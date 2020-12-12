@@ -39,9 +39,9 @@ SEARCH_DIR(.)
 MEMORY
 {
     rom (rx)    : ORIGIN = 0x00400000, LENGTH = 0x00200000 /* rom, 2097152K */
-    ram (rwx)   : ORIGIN = 0x20400000, LENGTH = 0x00040000 /* ram, 256K */
-    itcm (rwx)  : ORIGIN = 0x00000000, LENGTH = 0x00010000 /* itcm, 64K */
-    dtcm (rwx)  : ORIGIN = 0x20000000, LENGTH = 0x00010000 /* dtcm, 64K */
+    ram (rwx)   : ORIGIN = 0x20400000, LENGTH = 0x00020000 /* ram, 128K */
+    itcm (rwx)  : ORIGIN = 0x00000000, LENGTH = 0x00020000 /* itcm, 128K */
+    dtcm (rwx)  : ORIGIN = 0x20000000, LENGTH = 0x00020000 /* dtcm, 128K */
 }
 
 /* The stack size used by the application. NOTE: you need to adjust according to your application. */
